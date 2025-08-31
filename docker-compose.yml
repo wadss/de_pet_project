@@ -1,0 +1,22 @@
+volumes:
+  ch_data:
+
+services:
+  ch_server:
+    container_name: ch_server
+    image: clickhouse/clickhouse-server:24.8.4
+    ports: 
+      - '127.0.0.1:8123:8123'
+      - '127.0.0.1:9000:9000'
+    env_file:
+      - .env
+    volumes:
+      - ch_data:/var/lib/clickhouse
+      - ./sql-scripts:/docker-entrypoint-initdb.d
+    command: >
+      bash -c "
+        /entrypoint.sh &&
+        sleep 5 &&
+        clickhouse-client --user=${CLICKHOUSE_USER:-default} --password=${CLICKHOUSE_PASSWORD:-} --queries-file /docker-entrypoint-initdb.d/init_script.sql
+      "
+
