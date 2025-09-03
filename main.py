@@ -13,21 +13,36 @@ fake = Faker('en_US')
 fake.add_provider(SchoolProvider)
 client = clickhouse_connect.get_client(host='localhost', port=8123, username=USER, password=PASSWORD)
 
-def escape_clickhouse_string(s):
-    if s is None:
-        return ''
-    s = s.replace('\\', '\\\\')
-    s = s.replace("'", "\\'")
+
+def data_or_none(s):
+    '''Функция подмешивания NULL в данные (2%)'''
+    if r.random() <= 0.02:
+        return None
     return s
 
-people_list = ', '.join(f"('{fake.first_name()}', '{fake.last_name()}', {r.randint(1, 100)}, {r.randint(1, 50)}, {r.randint(1, 10)})" for i in range(1, 101))
-school_list = ', '.join(f"({i}, '{escape_clickhouse_string(fake.school_name())}')" for i in range(1, 11))
-prof_list = ', '.join(f"({i}, '{escape_clickhouse_string(fake.job())}')" for i in range(1, 51))
-lst_dct = {'people': people_list, 'education': school_list, 'profession': prof_list}
+
+def duplicated(lst):
+    '''Функция генерации дубликатов. В 10% случаев создаёт случайное число дубликатов'''
+    cnt = 0
+    if r.random() <= 0.1:
+        for _ in range((r.randint(1, len(lst) / 100))):
+            lst.append(lst[r.randint(0, len(lst) - 1)])
+            cnt += 1
+    print('Количество созданных дубликатов:', cnt)
+    return lst
+
+
+people_list = duplicated([[fake.first_name(),
+     fake.last_name(),
+     r.randint(1, 100),
+     data_or_none(fake.job()),
+     data_or_none(fake.school_name())] for i in range(1000)])
+
+lst_dct = {'people': people_list}
 
 try:
-    for key, value in lst_dct.items():
-        client.command(f'insert into de_pet_project.{key} format values {value}')
+    for key in lst_dct:
+        client.insert('de_pet_project.people', lst_dct[key], column_names=['first_name', 'last_name', 'age', 'profession_name', 'education_name'])
     print('Данные в clickhouse успешно записаны')
 except ValueError as e:
     print(f'Ошибка записи данных в clickhouse: {e}')

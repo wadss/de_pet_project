@@ -4,30 +4,27 @@ TRUNCATE ALL TABLES FROM IF EXISTS de_pet_project;
 
 CREATE OR REPLACE TABLE de_pet_project.people
 (
-    `first_name` String NOT NULL,
-    `last_name` String NOT NULL,
-    `age` UInt32 NOT NULL,
-    `profession` UInt32 NULL,
-    `education` UInt32 NULL
+    `first_name` String,
+    `last_name` String,
+    `age` UInt32,
+    `profession_name` String NULL,
+    `education_name` String NULL
 )
 
 ENGINE = MergeTree()
-ORDER BY (first_name, last_name);
+ORDER BY (first_name);
 
-CREATE OR REPLACE TABLE de_pet_project.profession
-(
-	`id` UInt32 NOT NULL,
-	`profession_name` String NOT NULL
-)
 
-ENGINE = MergeTree()
-ORDER BY id;
+/*
+Проверка на наличие NULL значений в колонках:
+SELECT *
+FROM people
+WHERE profession_name IS NULL
+OR education_name IS NULL
 
-CREATE OR REPLACE TABLE de_pet_project.education
-(
-	`id` UInt32 NOT NULL,
-	`education_name` String NOT NULL
-)
-
-ENGINE = MergeTree()
-ORDER BY id;
+Отбираем дубликаты:
+SELECT *
+FROM (SELECT *, ROW_NUMBER() OVER(PARTITION BY *) AS rnk
+FROM people)
+WHERE rnk >= 2
+*/
