@@ -1,10 +1,7 @@
--- создание бд
-CREATE DATABASE IF NOT EXISTS de_pet_project
+CREATE DATABASE IF NOT EXISTS de_pet_project;
 
--- очистка всех таблиц в схеме
-TRUNCATE ALL TABLES FROM IF EXISTS de_pet_project
+TRUNCATE ALL TABLES FROM IF EXISTS de_pet_project;
 
--- не понимаю, почему нельзя сразу создать 3 таблицы, но по одной всё ок.
 CREATE OR REPLACE TABLE de_pet_project.people
 (
     `first_name` String NOT NULL,
@@ -34,15 +31,3 @@ CREATE OR REPLACE TABLE de_pet_project.education
 
 ENGINE = MergeTree()
 ORDER BY id;
-
--- проверка качества данных
-
--- SELECT count(DISTINCT *) AS uniq_cnt, count(*) AS cnt FROM people
-
--- SELECT * 
--- FROM people AS p
--- LEFT JOIN profession AS pr ON p.profession = pr.id
-
--- SELECT *
--- FROM people AS p
--- LEFT JOIN education AS ed ON p.education = ed.id

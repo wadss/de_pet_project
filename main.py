@@ -14,7 +14,11 @@ fake.add_provider(SchoolProvider)
 client = clickhouse_connect.get_client(host='localhost', port=8123, username=USER, password=PASSWORD)
 
 def escape_clickhouse_string(s):
-    return s.replace("'", "\\'").replace("\\", "\\\\")
+    if s is None:
+        return ''
+    s = s.replace('\\', '\\\\')
+    s = s.replace("'", "\\'")
+    return s
 
 people_list = ', '.join(f"('{fake.first_name()}', '{fake.last_name()}', {r.randint(1, 100)}, {r.randint(1, 50)}, {r.randint(1, 10)})" for i in range(1, 101))
 school_list = ', '.join(f"({i}, '{escape_clickhouse_string(fake.school_name())}')" for i in range(1, 11))
