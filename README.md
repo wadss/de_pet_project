@@ -7,7 +7,7 @@ pet data engineering project with airflow, spark, clickhouse and postgre.
 Для запуска проекта необходим установленный __Docker__ на компьютере.
 После скачивания проекта необходимо выполнить команду:
 ```
-docker-compose ip -d
+docker-compose up -d
 ```
 
 Далее выполнить команду:
